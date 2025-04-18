@@ -1,0 +1,1 @@
+export const tokenStore: { [token: string]: { username: string; password: string } } = {};
