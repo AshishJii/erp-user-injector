@@ -43,12 +43,12 @@ export default function ERPLogin() {
       });
       const data: LoginResponse = await res.json();
 
-      if (data.success && data.user) {
-        setUser(data.user);
+      if (data.status === 'success' && data.data?.user) {
+        setUser(data.data.user);
         setSelectedToken(token);
         setMessage('Session loaded successfully');
       } else {
-        setMessage(data.error || 'Invalid token or expired session');
+        setMessage(data.msg || 'Invalid token or expired session');
         setUser(null); // Clear user if login failed
       }
     } catch (err) {
@@ -73,17 +73,17 @@ export default function ERPLogin() {
 
       const data: LoginResponse = await res.json();
 
-      if (data.success && data.token && data.user) {
-        const newTokenInfo: TokenInfo = { username: credentials.username, token: data.token };
+      if (data.status === 'success' && data.data?.token && data.data?.user) {
+        const newTokenInfo: TokenInfo = { username: credentials.username, token: data.data.token };
         const updatedTokens = [...tokens, newTokenInfo];
         setTokens(updatedTokens);
         localStorage.setItem('erpTokens', JSON.stringify(updatedTokens));
 
-        setUser(data.user);
-        setSelectedToken(data.token);
+        setUser(data.data.user);
+        setSelectedToken(data.data.token);
         setMessage('Login successful');
       } else {
-        setMessage(data.error || 'Login failed');
+        setMessage(data.msg || 'Login failed');
         setUser(null); // Clear user if login failed
       }
     } catch (err) {
@@ -188,21 +188,16 @@ export default function ERPLogin() {
       {user && (
         <div className="mt-6 p-4 border rounded-lg shadow-sm">
           <h2 className="text-xl font-semibold mb-2">User Details</h2>
-          <p>
-            <strong>Name:</strong> {user.name}
-          </p>
-          <p>
-            <strong>Roll No:</strong> {user.roll}
-          </p>
-          <p>
-            <strong>Branch:</strong> {user.branch}
-          </p>
-          <p>
-            <strong>Section:</strong> {user.section}
-          </p>
-          <p>
-            <strong>Email:</strong> {user.email}
-          </p>
+          <p><strong>Name:</strong> {user.name}</p>
+          <p><strong>Roll No:</strong> {user.university_roll_no}</p>
+          <p><strong>Branch:</strong> {user.branch}</p>
+          <p><strong>Section:</strong> {user.section}</p>
+          <p><strong>Email:</strong> {user.email}</p>
+          <p><strong>Library Code:</strong> {user.library_code}</p>
+          <p><strong>Mobile No:</strong> {user.mobile_no}</p>
+          <p><strong>Birth Date:</strong> {user.birth_date}</p>
+          <p><strong>Permanent Address:</strong> {user.permanent_address}</p>
+          <p><strong>Local Address:</strong> {user.local_address}</p>
         </div>
       )}
     </div>

@@ -11,17 +11,34 @@ export async function POST(req: NextRequest) {
   try {
     const { username, password } = await req.json();
     if (!username || !password) {
-      return NextResponse.json({ success: false, error: 'Missing username or password' } satisfies LoginResponse, { status: 400 });
+      return NextResponse.json(
+        { status: "error", msg: 'Missing username or password' } satisfies LoginResponse, { status: 400 }
+      );
     }
-    const user = await loginToERP(username, password);
-    if (!user) {
-      return NextResponse.json({ success: false, error: 'Invalid credentials' } satisfies LoginResponse, { status: 401 });
+
+    const erpRes = await loginToERP(username, password);
+    if (erpRes.status === 'error') {
+      return NextResponse.json(
+        { status: "error", msg: erpRes.msg } satisfies LoginResponse, { status: 401 }
+      );
     }
+
     const token = generateToken(username);
     saveToken(token, { username, password });
-    return NextResponse.json({ success: true, token, user } satisfies LoginResponse, { status: 200 });
+    return NextResponse.json(
+      {
+        status: "success",
+        data: {
+          user: erpRes.data,
+          token,
+        },
+      } satisfies LoginResponse,
+      { status: 200 }
+    );
   } catch (err) {
     console.error('Internal error:', err);
-    return NextResponse.json({ success: false, error: 'Internal server error' } satisfies LoginResponse, { status: 500 });
+    return NextResponse.json(
+      { status: "error", msg: 'Internal server error' } satisfies LoginResponse, { status: 500 }
+    );
   }
 }
