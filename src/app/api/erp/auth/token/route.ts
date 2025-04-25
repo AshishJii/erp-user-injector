@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json( { status: 'error', msg: 'Stored credentials invalid' } satisfies LoginResponse, { status: 401 } );
     }
 
-    return NextResponse.json( { status: 'success', data: { user: erpRes.data } } satisfies LoginResponse, { status: 200 } );
+    return NextResponse.json( { status: 'success', data: { user: erpRes.data, token } } satisfies LoginResponse, { status: 200 } );
   } catch (err) {
     console.error('Internal error:', err);
     return NextResponse.json( { status: 'error', msg: 'Internal server error' } satisfies LoginResponse, { status: 500 } );

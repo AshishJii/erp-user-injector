@@ -1,10 +1,10 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Progress } from "@/components/ui/progress"
 import {
   Dialog,
   DialogContent,
-  DialogTrigger,
   DialogHeader,
   DialogTitle,
   DialogDescription,
@@ -19,6 +19,7 @@ export default function ERPLogin() {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -47,9 +48,13 @@ export default function ERPLogin() {
         setUser(data.data.user);
         setSelectedToken(token);
         setMessage('Session loaded successfully');
-      } else {
+      } else if (data.status === 'error') {
         setMessage(data.msg || 'Invalid token or expired session');
         setUser(null); // Clear user if login failed
+      } else {
+        // Fallback for edge cases (e.g., unexpected structure)
+        setMessage('Invalid response');
+        setUser(null);
       }
     } catch (err) {
       console.error(err);
@@ -63,7 +68,19 @@ export default function ERPLogin() {
 
   const handleLogin = async () => {
     setIsLoading(true);
+    setProgress(10);
     setMessage(null);
+
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 95) {
+          clearInterval(interval);
+          return prev;
+        }
+        return prev + Math.floor(Math.random() * 5) + 2;
+      });
+    }, 300);
+
     try {
       const res = await fetch('/api/erp/auth/login', {
         method: 'POST',
@@ -82,17 +99,25 @@ export default function ERPLogin() {
         setUser(data.data.user);
         setSelectedToken(data.data.token);
         setMessage('Login successful');
-      } else {
+      } else if (data.status === 'error'){
         setMessage(data.msg || 'Login failed');
         setUser(null); // Clear user if login failed
-      }
+      } else {
+        // Fallback for edge cases (e.g., unexpected structure)
+        setMessage('Invalid response');
+        setUser(null);
+      }      
     } catch (err) {
       console.error(err);
       setMessage('Error logging in');
       setUser(null); // Clear user if error occurs
     } finally {
-      setIsLoading(false);
-      setShowDialog(false);
+      clearInterval(interval);
+      setProgress(100);
+      setTimeout(() => {
+        setIsLoading(false);
+        setShowDialog(false);
+      }, 300);
     }
   };
 
@@ -166,6 +191,14 @@ export default function ERPLogin() {
             <Button onClick={handleLogin} disabled={isLoading} className="w-full">
               {isLoading ? 'Logging in...' : 'Login'}
             </Button>
+
+            {isLoading && (
+              <Progress
+              value={progress}
+              className="h-2 mt-2 rounded-full bg-muted overflow-hidden 
+                        transition-all duration-100 ease-in-out"
+            />
+            )}
           </div>
         </DialogContent>
       </Dialog>
@@ -189,15 +222,22 @@ export default function ERPLogin() {
         <div className="mt-6 p-4 border rounded-lg shadow-sm">
           <h2 className="text-xl font-semibold mb-2">User Details</h2>
           <p><strong>Name:</strong> {user.name}</p>
-          <p><strong>Roll No:</strong> {user.university_roll_no}</p>
+          <p><strong>Roll No:</strong> {user.roll}</p>
           <p><strong>Branch:</strong> {user.branch}</p>
           <p><strong>Section:</strong> {user.section}</p>
           <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Library Code:</strong> {user.library_code}</p>
-          <p><strong>Mobile No:</strong> {user.mobile_no}</p>
-          <p><strong>Birth Date:</strong> {user.birth_date}</p>
-          <p><strong>Permanent Address:</strong> {user.permanent_address}</p>
-          <p><strong>Local Address:</strong> {user.local_address}</p>
+          <p><strong>Library Code:</strong> {user.libraryCode}</p>
+          <p><strong>Mobile No:</strong> {user.mobile}</p>
+          <p><strong>Birth Date:</strong> {user.birthDate}</p>
+          <p><strong>Permanent Address:</strong> {user.permanentAddress}</p>
+          <p><strong>Local Address:</strong> {user.localAddress}</p>
+
+          <div className="mt-6 p-4 bg-yellow-100 border border-yellow-400 rounded-lg shadow-inner">
+          <p className="text-sm font-bold text-yellow-800 break-words">
+            <strong className="uppercase tracking-wide">Token: </strong>
+            <span className="font-mono">{selectedToken}</span>
+          </p>
+    </div>
         </div>
       )}
     </div>

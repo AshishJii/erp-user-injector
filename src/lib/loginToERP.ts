@@ -10,14 +10,15 @@ export async function loginToERP(username: string, password: string): Promise<ER
       body: JSON.stringify({ username, password })
     });
 
-    const result = await response.json();
+    const result: ERPLoginResponse = await response.json();
     console.log(result);
 
     return result;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Network or internal error";
     return {
       status: "error",
-      msg: error.message || "Network or internal error"
+      msg
     };
   }
 }
