@@ -23,6 +23,7 @@ export default function ERPLogin() {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    // TODO: change to http cookie
     const stored = localStorage.getItem('erpTokens');
     if (stored) {
       try {
@@ -34,39 +35,14 @@ export default function ERPLogin() {
   }, []);
 
   const handleTokenClick = async (token: string) => {
-    setIsLoading(true);
-    setMessage(null);
-    try {
-      const res = await fetch('/api/erp/auth/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      });
-      const data: LoginResponse = await res.json();
-
-      if (data.status === 'success' && data.data?.user) {
-        setUser(data.data.user);
-        setSelectedToken(token);
-        setMessage('Session loaded successfully');
-      } else if (data.status === 'error') {
-        setMessage(data.msg || 'Invalid token or expired session');
-        setUser(null); // Clear user if login failed
-      } else {
-        // Fallback for edge cases (e.g., unexpected structure)
-        setMessage('Invalid response');
-        setUser(null);
-      }
-    } catch (err) {
-      console.error(err);
-      setMessage('Failed to fetch session details');
-      setUser(null); // Clear user if error occurs
-    } finally {
-      setIsLoading(false);
-      setShowDialog(false);
-    }
+    await callServer('/api/erp/auth/token', {token});
   };
 
   const handleLogin = async () => {
+    await callServer('/api/erp/auth/login', credentials);
+  };
+
+  const callServer = async (url, body) => {
     setIsLoading(true);
     setProgress(10);
     setMessage(null);
@@ -82,17 +58,26 @@ export default function ERPLogin() {
     }, 300);
 
     try {
-      const res = await fetch('/api/erp/auth/login', {
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials),
+        body: JSON.stringify(body),
       });
 
       const data: LoginResponse = await res.json();
 
       if (data.status === 'success' && data.data?.token && data.data?.user) {
         const newTokenInfo: TokenInfo = { username: credentials.username, token: data.data.token };
-        const updatedTokens = [...tokens, newTokenInfo];
+        const existingIndex = tokens.findIndex(t => t.username === credentials.username);
+        let updatedTokens;
+        if (existingIndex !== -1) {
+          // Username exists, replace token
+          updatedTokens = [...tokens];
+          updatedTokens[existingIndex] = newTokenInfo;
+        } else {
+          // Username doesn't exist, append new
+          updatedTokens = [...tokens, newTokenInfo];
+        }
         setTokens(updatedTokens);
         localStorage.setItem('erpTokens', JSON.stringify(updatedTokens));
 
@@ -112,14 +97,13 @@ export default function ERPLogin() {
       setMessage('Error logging in');
       setUser(null); // Clear user if error occurs
     } finally {
-      clearInterval(interval);
       setProgress(100);
       setTimeout(() => {
         setIsLoading(false);
         setShowDialog(false);
       }, 300);
     }
-  };
+  }
 
   const deleteToken = (tokenToDelete: string) => {
     const updated = tokens.filter(({ token }) => token !== tokenToDelete);
