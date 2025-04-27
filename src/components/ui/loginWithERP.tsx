@@ -10,12 +10,12 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { User, TokenInfo, LoginResponse } from '@/lib/types';
+import { User, TokenInfo, LoginResponse, TokenRequestBody, LoginRequestBody, ERPLoginProps } from '@/lib/types';
 
-export default function ERPLogin({ handleProxyToken }) {
+export default function ERPLogin({ handleProxyToken }: ERPLoginProps) {
   const [tokens, setTokens] = useState<TokenInfo[]>([]);
   const [showDialog, setShowDialog] = useState(false);
-  const [selectedToken, setSelectedToken] = useState<string | null>(null);
+  // const [selectedToken, setSelectedToken] = useState<string | null>(null);
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +43,7 @@ export default function ERPLogin({ handleProxyToken }) {
     await callServer('/api/erp/auth/login', credentials);
   };
 
-  const callServer = async (url, body) => {
+  const callServer = async (url: string, body: TokenRequestBody | LoginRequestBody) => {
     setIsLoading(true);
     setProgress(10);
     setMessage(null);
@@ -83,7 +83,7 @@ export default function ERPLogin({ handleProxyToken }) {
         localStorage.setItem('erpTokens', JSON.stringify(updatedTokens));
 
         setUser(data.data.user);
-        setSelectedToken(data.data.token);
+        // setSelectedToken(data.data.token);
         handleProxyToken(data.data.token); // passed up
         setMessage('Login successful');
       } else if (data.status === 'error'){

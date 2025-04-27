@@ -34,3 +34,16 @@ export type TokenInfo = {
 export type ERPLoginResponse =
   | { status: "success"; data: User }
   | { status: "error"; msg: string };
+
+export type TokenRequestBody = {
+  token: string;
+};
+
+export type LoginRequestBody = {
+  username: string;
+  password: string;
+};
+
+export type ERPLoginProps = {
+  handleProxyToken: (token: string) => void; // Define the type of handleProxyToken as a function
+};
