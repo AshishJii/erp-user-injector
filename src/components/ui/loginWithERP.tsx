@@ -24,7 +24,7 @@ export default function ERPLogin({ handleProxyToken }: ERPLoginProps) {
 
   useEffect(() => {
     // TODO: change to http cookie
-    // TODO: seperate server token and actual token
+    // TODO: seperate proxy server token and actual token
     const stored = localStorage.getItem('erpTokens');
     if (stored) {
       try {
@@ -119,7 +119,7 @@ export default function ERPLogin({ handleProxyToken }: ERPLoginProps) {
 
   return (
     <div className="flex flex-col items-center justify-center px-4">
-      <Button onClick={() => setShowDialog(true)} className="h-12 px-6 text-lg">
+      <Button onClick={(e) => {e.preventDefault(); setShowDialog(true)}} className="h-12 px-6 text-lg">
         Login with ERP
       </Button>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>

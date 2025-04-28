@@ -16,6 +16,8 @@ export default function FormPage() {
     proxyToken: '',
   });
 
+  const [submitting, setSubmitting] = useState(false);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -25,7 +27,17 @@ export default function FormPage() {
     event.preventDefault();
     console.log(formData);
     // handle actual submission logic here
-    alert(JSON.stringify(formData));
+    // alert(JSON.stringify(formData));
+    setSubmitting(true);
+    setTimeout(() => {setSubmitting(false)}, 400);
+    setFormData({
+      busTime: "",
+      busStop: "",
+      busNo: "",
+      seatPreference: "",
+      otherDetails: "",
+      proxyToken: '',
+    })
   };
 
   const handleProxyToken = (token) => {
@@ -126,7 +138,7 @@ export default function FormPage() {
             </div>
 
             <Button type="submit" className="w-full mt-4">
-              Submit
+              {submitting ? 'Processing...' : 'Submit'}
             </Button>
           </form>
         </CardContent>
