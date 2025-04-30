@@ -136,7 +136,7 @@ export default function ERPLogin({ handleProxyToken }: ERPLoginProps) {
           {tokens.length > 0 && (
             <div className="space-y-2 mb-4">
               {tokens.map(({ username, token }) => (
-                <div key={token} className="flex items-center gap-2">
+                <div key={username} className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     className="flex-1"
