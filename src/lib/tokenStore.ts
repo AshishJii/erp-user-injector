@@ -1,7 +1,13 @@
 import Redis from 'ioredis';
+import dotenv from 'dotenv';
 import { TokenStoreRecord } from './types';
 
-const redis = new Redis();
+dotenv.config();
+
+const redisUrl = process.env.REDIS_URL;
+if (!redisUrl)
+  throw new Error('REDIS_URL environment variable is not set!');
+const redis = new Redis(redisUrl);
 const TOKEN_PREFIX = 'erp-user-injector:';
 
 export async function saveToken(token: string, record: TokenStoreRecord) {
