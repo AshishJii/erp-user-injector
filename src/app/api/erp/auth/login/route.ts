@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     }
 
     const token = generateToken(username);
-    saveToken(token, { username, password });
+    await saveToken(token, { username, password });
     return NextResponse.json(
       {
         status: "success",

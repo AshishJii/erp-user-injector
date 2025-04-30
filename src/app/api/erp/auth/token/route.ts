@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     if (!token) {
       return NextResponse.json( { status: 'error', msg: 'Missing token' } satisfies LoginResponse, { status: 400 } );    
     }
-    const record = getTokenRecord(token);
+    const record = await getTokenRecord(token);
     if (!record) {
       return NextResponse.json( { status: 'error', msg: 'Invalid token' } satisfies LoginResponse, { status: 401 } );
     }
